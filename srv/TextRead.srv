@@ -1,0 +1,4 @@
+sensor_msgs/Image image # The cropped image for extracting text 
+float32 x
+---
+string text # The text inside the image
