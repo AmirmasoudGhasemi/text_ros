@@ -6,11 +6,14 @@ from torch.autograd import Variable
 import utils
 import dataset
 from sensor_msgs.msg import Image as Image_msg
-from PIL import Image
+from PIL import Image, ImageFile
 import models.crnn as crnn
-
+import cv2
 from text_ros.srv import *
 from std_msgs.msg import String
+from cv_bridge import CvBridge, CvBridgeError 
+
+
 
 model_path = './data/crnn.pth'
 img_path = './data/demo.png'
@@ -25,8 +28,16 @@ converter = utils.strLabelConverter(alphabet)
 transformer = dataset.resizeNormalize((100, 32))
 
 def handle_text_read(req):
+	
+	bridge = CvBridge()
+	cv_image = bridge.imgmsg_to_cv2(req.image, desired_encoding = "passthrough") #covert sensor_msgs/Image into cv_image
+	
+	
+	image = Image.fromarray(cv_image,'RGB')
+	image = image.convert('L')
+	#image.save("image2.png", "PNG")
 
-	image = Image.open(img_path).convert('L')
+	#image = Image.open(img_path).convert('L')
 	image = transformer(image)
 	if torch.cuda.is_available():
 	    image = image.cuda()
